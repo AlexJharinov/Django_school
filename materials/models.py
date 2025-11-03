@@ -27,8 +27,8 @@ class Lesson(models.Model):
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
 
     class Meta:
-        verbose_name = "Курс"
-        verbose_name_plural = "Курсы"
+        verbose_name = "Урок"
+        verbose_name_plural = "Уроки"
 
     def __str__(self):
         return f"{self.title} ({self.course.title})"
