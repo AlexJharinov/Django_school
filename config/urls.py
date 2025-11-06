@@ -22,6 +22,7 @@ import materials
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("course/", include("materials.urls", namespace="course")),
-    path("api/", include("materials.urls")),
+    path("api/", include(("materials.urls", "materials"), namespace="materials")),
+    path("api/", include(("users.urls", "users"), namespace="users")),
+
 ]
