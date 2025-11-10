@@ -1,4 +1,8 @@
+from django.contrib.auth.models import User
 from django.db import models
+
+from config import settings
+
 
 class Course(models.Model):
     """
@@ -7,6 +11,13 @@ class Course(models.Model):
     title = models.CharField(max_length=225, verbose_name="Название")
     preview = models.ImageField(upload_to="courses/preview", blank=True, null=True, verbose_name="Превью(картинка)" )
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # <— правильная ссылка
+        on_delete=models.CASCADE,
+        related_name="Владелец_курса",
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -25,6 +36,13 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
     preview = models.ImageField(upload_to="lessons/preview", blank=True, null=True, verbose_name="Превью(картинка)")
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # <— правильная ссылка
+        on_delete=models.CASCADE,
+        related_name="владелец_урока",
+        null = True,
+        blank = True
+    )
 
     class Meta:
         verbose_name = "Урок"
