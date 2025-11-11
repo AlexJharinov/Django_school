@@ -1,42 +1,37 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsModerator(BasePermission):
-    """
-    Проверяет, что пользователь принадлежит к группе 'Модераторы'.
-    """
+    """Проверяет, состоит ли пользователь в группе 'Модераторы'."""
 
     def has_permission(self, request, view):
         return (
-            request.user
-            and request.user.is_authenticated
-            and request.user.groups.filter(name="Модераторы").exists()
-
-
-        )
-
-class IsModerator(BasePermission):
-    """
-    Проверяет, что пользователь состоит в группе 'Модераторы'.
-    """
-
-    def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
+            request.user.is_authenticated
             and request.user.groups.filter(name="Модераторы").exists()
         )
 
 
 class IsOwnerOrModerator(BasePermission):
-    """
-    Разрешает доступ модераторам ко всем объектам.
-    Обычным пользователям — только к своим.
-    """
+    """Модератор — доступ ко всем объектам, пользователь — только к своим."""
 
     def has_object_permission(self, request, view, obj):
-        # Модератор может всё, кроме create/delete (ограничим во вьюхе)
         if request.user.groups.filter(name="Модераторы").exists():
             return True
-        # Иначе разрешаем доступ только владельцу объекта
         return obj.owner == request.user
+
+
+class ModeratorNoCreateDelete(BasePermission):
+    """
+    Запрещает модератору создавать и удалять объекты (POST, DELETE).
+    Остальные методы доступны.
+    """
+
+    def has_permission(self, request, view):
+        is_mod = (
+            request.user.is_authenticated
+            and request.user.groups.filter(name="Модераторы").exists()
+        )
+        # запрещаем создание и удаление модератору
+        if request.method in ("POST", "DELETE") and is_mod:
+            return False
+        return True
