@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+
 from materials.models import Course, Lesson
 
 
@@ -42,7 +43,7 @@ class User(AbstractUser):
         verbose_name="Телефон",
         help_text="Укажите телефон",
     )
-    sity = models.CharField(
+    city = models.CharField(
         max_length=35,
         blank=True,
         null=True,
@@ -82,9 +83,7 @@ class Payment(models.Model):
         related_name="payments",
         verbose_name="Пользователь",
     )
-    payment_date = models.DateTimeField(
-        auto_now_add=True, verbose_name="Дата оплаты"
-    )
+    payment_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
     paid_course = models.ForeignKey(
         Course,
         on_delete=models.SET_NULL,
