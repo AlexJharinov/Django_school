@@ -83,6 +83,7 @@ class Payment(models.Model):
         related_name="payments",
         verbose_name="Пользователь",
     )
+
     payment_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
     paid_course = models.ForeignKey(
         Course,
