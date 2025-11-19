@@ -1,8 +1,12 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, viewsets, status
+from rest_framework.views import APIView
 
 from materials.models import Course, Lesson
 from materials.permissions import IsModerator, IsOwnerOrModerator
 from materials.serializers import CourseSerializer, LessonSerializer
+from materials.services import create_checkout_session_for_course
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -111,3 +115,18 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
                 IsOwnerOrModerator,
             ]
         return [perm() for perm in self.permission_classes]
+
+class CourseBuyView(APIView):
+    """
+    Создаёт Stripe Checkout Session для оплаты курса и возвращает ссылку.
+    """
+    permission_classes = [permissions.IsAuthenticated]  # или AllowAny, как у тебя в проекте
+
+    def post(self, request, pk):
+        course = get_object_or_404(Course, pk=pk)
+        session = create_checkout_session_for_course(course, user=request.user)
+
+        return Response(
+            {"checkout_url": session.url},
+            status=status.HTTP_201_CREATED,
+        )

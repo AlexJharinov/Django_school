@@ -24,6 +24,12 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
+    stripe_product_id = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="ID продукта в Stripe"
+    )
+    stripe_price_id = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="ID цены в Stripe"
+    )
 
     class Meta:
         verbose_name = "Курс"
