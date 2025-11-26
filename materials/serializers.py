@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from materials.models import Course, Lesson
+from users.models import Subscription
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -20,3 +21,12 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_lessons_count(self, obj):
         """Возвращает количество уроков, связанных с курсом"""
         return obj.lessons.count()
+
+is_subscribed = serializers.SerializerMethodField()
+
+def get_is_subscribed(self, obj):
+    user = self.context["request"].user
+    if not user.is_authenticated:
+        return False
+    return Subscription.objects.filter(user=user, course=obj).exists()
+

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+
 import users
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -114,7 +115,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
+USE_TZ = True
+
 TIME_ZONE = "UTC"
+CELERY_TIMEZONE = "UTC"
+
 
 USE_I18N = True
 
@@ -147,3 +152,17 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+
+
+
+
+CELERY_BEAT_SCHEDULE = {
+    "print-hello-every-10-seconds": {
+        "task": "materials.tasks.print_hello",
+        "schedule": timedelta(seconds=10),
+    },
+}
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
