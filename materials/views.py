@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.views import APIView
 
-from materials.models import Course, Lesson, Subscription
+from materials.models import Course, Lesson
 from materials.paginators import CourseLessonPagination
 from materials.permissions import IsModerator, IsOwnerOrModerator
 from materials.serializers import CourseSerializer, LessonSerializer

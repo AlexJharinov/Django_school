@@ -79,29 +79,29 @@ from django.conf import settings
 from django.db import models
 
 
-class Subscription(models.Model):
-    """
-    Подписка пользователя на курс.
-    """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="subscriptions",
-        verbose_name="Пользователь",
-    )
-    course = models.ForeignKey(
-        "materials.Course",
-        on_delete=models.CASCADE,
-        related_name="subscriptions",
-        verbose_name="Курс",
-    )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата подписки")
-
-    class Meta:
-        unique_together = ("user", "course")  # одна подписка на курс
-        verbose_name = "Подписка"
-        verbose_name_plural = "Подписки"
-
-    def __str__(self):
-        return f"{self.user.email} → {self.course.title}"
+# class Subscription(models.Model):
+#     """
+#     Подписка пользователя на курс.
+#     """
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name="subscriptions",
+#         verbose_name="Пользователь",
+#     )
+#     course = models.ForeignKey(
+#         "materials.Course",
+#         on_delete=models.CASCADE,
+#         related_name="subscriptions",
+#         verbose_name="Курс",
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата подписки")
+#
+#     class Meta:
+#         unique_together = ("user", "course")  # одна подписка на курс
+#         verbose_name = "Подписка"
+#         verbose_name_plural = "Подписки"
+#
+#     def __str__(self):
+#         return f"{self.user.email} → {self.course.title}"
 
