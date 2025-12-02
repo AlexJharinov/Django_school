@@ -4,12 +4,28 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+
 import users
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 load_dotenv()
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+
+STRIPE_SUCCESS_URL = os.getenv("STRIPE_SUCCESS_URL", "http://localhost:8000/success/")
+STRIPE_CANCEL_URL = os.getenv("STRIPE_CANCEL_URL", "http://localhost:8000/cancel/")
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = os.getenv("EMAIL_PORT", 587)
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # отправитель
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -34,6 +50,10 @@ INSTALLED_APPS = [
     "materials",
     "django_extensions",
     "django_filters",
+    "django_celery_beat",
+
+
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -106,7 +126,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
+USE_TZ = True
+
 TIME_ZONE = "UTC"
+CELERY_TIMEZONE = "UTC"
+
 
 USE_I18N = True
 
@@ -139,3 +163,17 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+
+
+
+
+CELERY_BEAT_SCHEDULE = {
+    "print-hello-every-10-seconds": {
+        "task": "materials.tasks.print_hello",
+        "schedule": timedelta(seconds=10),
+    },
+}
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/1"

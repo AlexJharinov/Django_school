@@ -83,6 +83,7 @@ class Payment(models.Model):
         related_name="payments",
         verbose_name="Пользователь",
     )
+
     payment_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
     paid_course = models.ForeignKey(
         Course,
@@ -116,3 +117,31 @@ class Payment(models.Model):
         verbose_name = "Платёж"
         verbose_name_plural = "Платежи"
         ordering = ["-payment_date"]
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Пользователь"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Курс"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата подписки"
+    )
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        unique_together = ("user", "course")  # один юзер, одна подписка
+
+    def __str__(self):
+        return f"{self.user.email} → {self.course.title}"

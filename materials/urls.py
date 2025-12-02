@@ -5,7 +5,7 @@ from rest_framework.routers import SimpleRouter
 
 from materials.apps import MaterialsConfig
 from materials.views import (CourseViewSet, LessonDetailView,
-                             LessonListCreateView, SubscriptionToggleView)
+                             LessonListCreateView, CourseBuyView)
 
 app_name = MaterialsConfig.name
 
@@ -15,7 +15,7 @@ router.register(r"courses", CourseViewSet, basename="course")  # ← важно 
 urlpatterns = [
     path("lessons/", LessonListCreateView.as_view(), name="lesson-list"),
     path("lessons/<int:pk>/", LessonDetailView.as_view(), name="lesson-detail"),
-    path("subscriptions/", SubscriptionToggleView.as_view(), name="subscription-toggle"),
+    path("courses/<int:pk>/buy/", CourseBuyView.as_view(), name="course-buy"),
 
 ]
 

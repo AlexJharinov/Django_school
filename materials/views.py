@@ -1,13 +1,24 @@
-from rest_framework import generics, permissions, viewsets
-from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.views import APIView
 
-from materials.models import Course, Lesson, Subscription
+from materials.models import Course, Lesson
 from materials.paginators import CourseLessonPagination
 from materials.permissions import IsModerator, IsOwnerOrModerator
 from materials.serializers import CourseSerializer, LessonSerializer
+from materials.services import create_checkout_session_for_course
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from django.utils import timezone
+from datetime import timedelta
+from users.models import Subscription
+from materials.tasks import send_course_update_email
+
+
+from datetime import timedelta
+from django.utils import timezone
+
+from users.models import Subscription
+from materials.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -28,19 +39,16 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.groups.filter(name="Модераторы").exists():
-            # Модератор видит все курсы
             return Course.objects.all()
-        # Остальные — только свои
         return Course.objects.filter(owner=user)
 
     def get_permissions(self):
-        # Запрещаем модератору POST и DELETE
         user = self.request.user
+
         if user.is_authenticated and user.groups.filter(name="Модераторы").exists():
             if self.action in ["create", "destroy"]:
-                self.permission_classes = [
-                    permissions.IsAdminUser
-                ]  # запретит модераторам
+                # Модератора режем по созданию/удалению
+                self.permission_classes = [permissions.IsAdminUser]
             elif self.action in ["update", "partial_update", "list", "retrieve"]:
                 self.permission_classes = [
                     permissions.IsAuthenticated,
@@ -57,6 +65,29 @@ class CourseViewSet(viewsets.ModelViewSet):
                 ]
 
         return [perm() for perm in self.permission_classes]
+
+    def perform_update(self, serializer):
+        # 1. Берём курс до сохранения, чтобы запомнить прошлое время обновления
+        course_before = self.get_object()
+        previous_updated_at = course_before.last_update_at
+
+        # 2. Сохраняем изменения
+        course = serializer.save()
+
+        now = timezone.now()
+
+        # 3. Если курс обновлялся менее 4 часов назад — уведомления не шлём
+        if previous_updated_at and (now - previous_updated_at) < timedelta(hours=4):
+            return
+
+        # 4. Шлём письма всем подписчикам этого курса
+        subscriptions = Subscription.objects.filter(course=course).select_related("user")
+
+        for sub in subscriptions:
+            email = sub.user.email
+            if email:
+                send_course_update_email.delay(email, course.title)
+
 
 
 class LessonListCreateView(generics.ListCreateAPIView):
@@ -119,29 +150,33 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
             ]
         return [perm() for perm in self.permission_classes]
 
-class SubscriptionToggleView(APIView):
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        course = lesson.course
+        now = timezone.now()
+
+        if course.last_update_at and (now - course.last_update_at) < timedelta(hours=4):
+            return
+
+        subs = course.subscriptions.all()
+        for sub in subs:
+            send_course_update_email.delay(sub.user.email, course.title)
+
+        # обновим timestamp у курса
+        course.last_update_at = now
+        course.save(update_fields=["last_update_at"])
+
+class CourseBuyView(APIView):
     """
-    Подписка или отписка пользователя от курса.
-    POST: {"course_id": 3}
+    Создаёт Stripe Checkout Session для оплаты курса и возвращает ссылку.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # или AllowAny, как у тебя в проекте
 
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        course_id = request.data.get("course_id")
+    def post(self, request, pk):
+        course = get_object_or_404(Course, pk=pk)
+        session = create_checkout_session_for_course(course, user=request.user)
 
-        if not course_id:
-            return Response({"error": "Не передан course_id"}, status=400)
-
-        course = get_object_or_404(Course, id=course_id)
-
-        subscription = Subscription.objects.filter(user=user, course=course)
-
-        if subscription.exists():
-            subscription.delete()
-            message = "Подписка удалена"
-        else:
-            Subscription.objects.create(user=user, course=course)
-            message = "Подписка добавлена"
-
-        return Response({"message": message})
+        return Response(
+            {"checkout_url": session.url},
+            status=status.HTTP_201_CREATED,
+        )
