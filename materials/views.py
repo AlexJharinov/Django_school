@@ -1,7 +1,8 @@
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.views import APIView
 
-from materials.models import Course, Lesson
+from materials.models import Course, Lesson, Subscription
+from materials.paginators import CourseLessonPagination
 from materials.permissions import IsModerator, IsOwnerOrModerator
 from materials.serializers import CourseSerializer, LessonSerializer
 from materials.services import create_checkout_session_for_course
@@ -29,6 +30,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = CourseLessonPagination
 
     def perform_create(self, serializer):
         """При создании автоматически проставляем владельца."""
@@ -97,6 +99,7 @@ class LessonListCreateView(generics.ListCreateAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = CourseLessonPagination
 
     def get_queryset(self):
         user = self.request.user

@@ -5,9 +5,22 @@ from users.models import Subscription
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    video_url = serializers.URLField(
+        required=False,
+        validators=[validate_youtube_url],
+    )
+
     class Meta:
         model = Lesson
-        fields = ["id", "title", "description"]
+        fields = [
+            "id",
+            "title",
+            "description",
+            "preview",
+            "video_url",
+            "course",
+            "owner",
+        ]
 
 
 class CourseSerializer(serializers.ModelSerializer):
