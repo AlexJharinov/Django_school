@@ -14,3 +14,9 @@ def send_course_update_email(user_email, course_title):
         recipient_list=[user_email],
         fail_silently=False,
     )
+
+from celery import shared_task
+
+@shared_task
+def print_hello():
+    print("Hello from Celery!")
