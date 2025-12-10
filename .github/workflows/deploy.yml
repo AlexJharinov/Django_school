@@ -1,50 +1,41 @@
-name: CI/CD Django School
-
-on:
-  push:
-    branches:
-      - develop_32.2
-
 jobs:
-  tests:
+  test:
+    name: Run Django tests
     runs-on: ubuntu-latest
+
+    env:
+      SECRET_KEY: "test-secret"
+      DEBUG: "0"
+
+      DB_NAME: "test"
+      DB_USER: "test"
+      DB_PASSWORD: "test"
+      DB_HOST: "localhost"
+      DB_PORT: "5432"
+
+      STRIPE_SECRET_KEY: "test"
+      STRIPE_PUBLIC_KEY: "test"
+
+      EMAIL_HOST: "smtp.test"
+      EMAIL_PORT: "465"
+      EMAIL_HOST_USER: "test@example.com"
+      EMAIL_HOST_PASSWORD: "password"
+      EMAIL_USE_TLS: "True"
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev build-essential
 
       - name: Install Poetry
-        run: |
-          pip install poetry
+        run: pip install poetry
 
-      - name: Install dependencies
-        run: |
-          poetry install
+      - name: Install project dependencies
+        run: poetry install
 
-      - name: Run tests
-        run: |
-          poetry run python manage.py test
-
-  deploy:
-    needs: tests
-    runs-on: ubuntu-latest
-    if: success()
-
-    steps:
-      - name: Deploy to remote server
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd ~/Django_school
-            git fetch --all
-            git reset --hard origin/develop_32.2
-            sudo docker compose down
-            sudo docker compose up --build -d
+      - name: Run Django tests
+        run: poetry run python manage.py test --verbosity=2
