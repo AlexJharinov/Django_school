@@ -1,25 +1,42 @@
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - django_school_static:/app/staticfiles
+      - django_school_media:/app/media
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: >
       sh -c "
       python manage.py migrate &&
       python manage.py collectstatic --noinput &&
-      python manage.py runserver 0.0.0.0:8000
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
     env_file:
       - .env.docker
+    ports:
+      - "8000:8000"
     depends_on:
       - redis
       - postgres
-    ports:
-      - "8000:8000"
     volumes:
       - django_school_media:/app/media
+      - django_school_static:/app/staticfiles
 
   celery:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: celery -A config worker -l info
     env_file:
       - .env.docker
@@ -28,7 +45,9 @@ services:
       - postgres
 
   celery_beat:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: celery -A config beat -l info
     env_file:
       - .env.docker
@@ -40,10 +59,6 @@ services:
     image: postgres:16
     env_file:
       - .env.docker
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -57,3 +72,5 @@ services:
 volumes:
   django_school_media:
   django_school_pgdata:
+  django_school_static:
+
