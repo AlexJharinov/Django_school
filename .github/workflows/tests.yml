@@ -1,0 +1,57 @@
+name: Django Tests
+
+on:
+  push:
+    branches:
+      - develop
+      - develop_32.2
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: Run Django tests
+    runs-on: ubuntu-latest
+
+    env:
+      SECRET_KEY: "test-secret"
+      DEBUG: "0"
+
+      # Fake DB for CI (Django will switch to SQLite automatically)
+      DB_NAME: "test"
+      DB_USER: "test"
+      DB_PASSWORD: "test"
+      DB_HOST: "localhost"
+      DB_PORT: "5432"
+
+      # Fake Stripe
+      STRIPE_SECRET_KEY: "test"
+      STRIPE_PUBLIC_KEY: "test"
+
+      # Fake email
+      EMAIL_HOST: "smtp.test"
+      EMAIL_PORT: "465"
+      EMAIL_HOST_USER: "test@example.com"
+      EMAIL_HOST_PASSWORD: "password"
+      EMAIL_USE_TLS: "True"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev build-essential
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install project dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-root
+
+      - name: Run Django tests
+        run: |
+          poetry run python manage.py test --verbosity=2
