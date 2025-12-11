@@ -9,11 +9,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-    env:
-      GITHUB_ACTIONS: "true"
-      SECRET_KEY: "test-secret"
-      DEBUG: "0"
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,19 +16,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install Poetry
-        run: pip install poetry
-
-      - name: Disable Poetry virtualenvs
-        run: poetry config virtualenvs.create false
+        run: |
+          pip install poetry
 
       - name: Install dependencies
-        run: poetry install --without dev
+        run: |
+          poetry install
 
       - name: Run tests
-        run: poetry run python manage.py test --verbosity=2
+        run: |
+          poetry run python manage.py test
 
   deploy:
     needs: tests
@@ -47,7 +42,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          passphrase: ""
           script: |
             cd ~/Django_school
             git fetch --all
