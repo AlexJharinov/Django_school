@@ -93,6 +93,13 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+if os.getenv("GITHUB_ACTIONS") == "true":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db.sqlite3",
+        }
+    }
 
 
 WSGI_APPLICATION = "config.wsgi.application"
