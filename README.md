@@ -20,7 +20,7 @@ docker-compose.yml лежит файл .env.docker.
 ### Остановка сервиса 
 - Команда - docker compose down
 
-              
+               
 
 
 ## Информация 
