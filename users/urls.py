@@ -1,7 +1,8 @@
 from django.urls import path
 from rest_framework.routers import SimpleRouter
 
-from users.views import PaymentViewSet, RegisterView, UserViewSet  # ✅ именно так
+from users.views import (PaymentViewSet, RegisterView,  # ✅ именно так
+                         UserViewSet)
 
 router = SimpleRouter()
 router.register(r"payments", PaymentViewSet, basename="payment")
