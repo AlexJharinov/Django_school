@@ -19,16 +19,16 @@ jobs:
           python-version: '3.12'
 
       - name: Install Poetry
-        run: |
-          pip install poetry
+        run: pip install poetry
 
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
 
-      - name: Run tests
-        run: |
-          poetry run python manage.py test
+      - name: Run flake8 (lint)
+        run: poetry run flake8
+
+      - name: Run Django tests
+        run: poetry run python manage.py test
 
   deploy:
     needs: tests

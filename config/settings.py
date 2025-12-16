@@ -10,7 +10,7 @@ import users
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
- # load_dotenv()
+# load_dotenv()
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
@@ -51,8 +51,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_filters",
     "django_celery_beat",
-
-
     "drf_yasg",
 ]
 
@@ -149,7 +147,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATIC_ROOT = '/app/staticfiles/'
+STATIC_ROOT = "/app/staticfiles/"
 
 
 MEDIA_URL = "/media/"
@@ -175,9 +173,6 @@ SIMPLE_JWT = {
 }
 
 
-
-
-
 CELERY_BEAT_SCHEDULE = {
     "print-hello-every-10-seconds": {
         "task": "materials.tasks.print_hello",
@@ -187,7 +182,3 @@ CELERY_BEAT_SCHEDULE = {
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND", "redis://redis:6379/1")
-
-
-
-

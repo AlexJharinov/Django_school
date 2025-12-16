@@ -81,13 +81,14 @@ class CourseViewSet(viewsets.ModelViewSet):
             return
 
         # 4. Шлём письма всем подписчикам этого курса
-        subscriptions = Subscription.objects.filter(course=course).select_related("user")
+        subscriptions = Subscription.objects.filter(course=course).select_related(
+            "user"
+        )
 
         for sub in subscriptions:
             email = sub.user.email
             if email:
                 send_course_update_email.delay(email, course.title)
-
 
 
 class LessonListCreateView(generics.ListCreateAPIView):
@@ -166,11 +167,15 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
         course.last_update_at = now
         course.save(update_fields=["last_update_at"])
 
+
 class CourseBuyView(APIView):
     """
     Создаёт Stripe Checkout Session для оплаты курса и возвращает ссылку.
     """
-    permission_classes = [permissions.IsAuthenticated]  # или AllowAny, как у тебя в проекте
+
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]  # или AllowAny, как у тебя в проекте
 
     def post(self, request, pk):
         course = get_object_or_404(Course, pk=pk)

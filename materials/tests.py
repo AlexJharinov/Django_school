@@ -14,9 +14,7 @@ class LessonCRUDTestCase(APITestCase):
 
     def setUp(self):
         # Создаём тестовых пользователей
-        self.user = User.objects.create_user(
-            email="user@example.com", password="12345"
-        )
+        self.user = User.objects.create_user(email="user@example.com", password="12345")
         self.moderator = User.objects.create_user(
             email="mod@example.com", password="12345"
         )
@@ -65,7 +63,9 @@ class LessonCRUDTestCase(APITestCase):
 
     def test_delete_lesson_not_owner(self):
         """Удаление урока другим пользователем запрещено"""
-        other_user = User.objects.create_user(email="other@example.com", password="12345")
+        other_user = User.objects.create_user(
+            email="other@example.com", password="12345"
+        )
         self.client.force_authenticate(user=other_user)
         response = self.client.delete(f"/api/lessons/{self.lesson.id}/")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
