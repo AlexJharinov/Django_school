@@ -24,6 +24,12 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Run isort (import order)
+        run: poetry run isort . --check-only
+
+      - name: Run black (code style)
+        run: poetry run black . --check
+
       - name: Run flake8 (lint)
         run: poetry run flake8
 
@@ -42,7 +48,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ""
           script: |
             cd ~/Django_school
             git fetch --all

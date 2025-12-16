@@ -1,24 +1,18 @@
-from rest_framework import generics, permissions, viewsets, status
+from datetime import timedelta
+
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from materials.models import Course, Lesson
 from materials.paginators import CourseLessonPagination
-from materials.permissions import IsModerator, IsOwnerOrModerator
+from materials.permissions import IsOwnerOrModerator
 from materials.serializers import CourseSerializer, LessonSerializer
 from materials.services import create_checkout_session_for_course
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from django.utils import timezone
-from datetime import timedelta
-from users.models import Subscription
 from materials.tasks import send_course_update_email
-
-
-from datetime import timedelta
-from django.utils import timezone
-
 from users.models import Subscription
-from materials.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):

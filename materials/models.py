@@ -1,5 +1,6 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.db import models
+
 
 from config import settings
 
@@ -76,9 +77,8 @@ class Lesson(models.Model):
         return f"{self.title} ({self.course.title})"
 
 
-from django.conf import settings
-from django.db import models
-
+# from django.conf import settings
+# from django.db import models
 
 # class Subscription(models.Model):
 #     """
