@@ -42,3 +42,22 @@ django-celery-beat = {allow-prereleases = true}
 drf-yasg = {allow-prereleases = true}
 [tool.poetry]
 package-mode = false
+
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [".git", "__pycache__", ".venv", "migrations"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+

@@ -2,8 +2,12 @@ from django.urls import path
 from rest_framework.routers import SimpleRouter
 
 from materials.apps import MaterialsConfig
-from materials.views import (CourseBuyView, CourseViewSet, LessonDetailView,
-                             LessonListCreateView)
+from materials.views import (
+    CourseBuyView,
+    CourseViewSet,
+    LessonDetailView,
+    LessonListCreateView,
+)
 
 app_name = MaterialsConfig.name
 
