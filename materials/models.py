@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.db import models
 
 from config import settings
@@ -32,9 +32,9 @@ class Course(models.Model):
     )
 
     last_update_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name="Последнее обновление курса"
+        auto_now=True, verbose_name="Последнее обновление курса"
     )
+
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
@@ -75,9 +75,9 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.title} ({self.course.title})"
 
-from django.conf import settings
-from django.db import models
 
+# from django.conf import settings
+# from django.db import models
 
 # class Subscription(models.Model):
 #     """
@@ -104,4 +104,3 @@ from django.db import models
 #
 #     def __str__(self):
 #         return f"{self.user.email} → {self.course.title}"
-

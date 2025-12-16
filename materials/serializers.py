@@ -36,11 +36,12 @@ class CourseSerializer(serializers.ModelSerializer):
         """Возвращает количество уроков, связанных с курсом"""
         return obj.lessons.count()
 
+
 is_subscribed = serializers.SerializerMethodField()
+
 
 def get_is_subscribed(self, obj):
     user = self.context["request"].user
     if not user.is_authenticated:
         return False
     return Subscription.objects.filter(user=user, course=obj).exists()
-

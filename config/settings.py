@@ -4,18 +4,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
-import users
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 load_dotenv()
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 
-STRIPE_SUCCESS_URL = os.getenv("STRIPE_SUCCESS_URL", "http://localhost:8000/success/")
 STRIPE_CANCEL_URL = os.getenv("STRIPE_CANCEL_URL", "http://localhost:8000/cancel/")
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -27,12 +22,12 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "test-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["158.160.215.67", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -51,8 +46,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_filters",
     "django_celery_beat",
-
-
     "drf_yasg",
 ]
 
@@ -93,6 +86,13 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+if os.getenv("GITHUB_ACTIONS") == "true":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db.sqlite3",
+        }
+    }
 
 
 WSGI_APPLICATION = "config.wsgi.application"
@@ -142,6 +142,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATIC_ROOT = "/app/staticfiles/"
+
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "/media/")
 
@@ -165,9 +168,6 @@ SIMPLE_JWT = {
 }
 
 
-
-
-
 CELERY_BEAT_SCHEDULE = {
     "print-hello-every-10-seconds": {
         "task": "materials.tasks.print_hello",
@@ -177,7 +177,3 @@ CELERY_BEAT_SCHEDULE = {
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND", "redis://redis:6379/1")
-
-
-
-
