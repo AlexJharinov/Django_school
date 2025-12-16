@@ -10,13 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install Poetry
         run: pip install poetry
@@ -24,26 +22,35 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Run isort (import order)
+      - name: Run isort
         run: poetry run isort . --check-only
 
-      - name: Run black (code style)
+      - name: Run black
         run: poetry run black . --check
 
-      - name: Run flake8 (lint)
+      - name: Run flake8
         run: poetry run flake8
 
       - name: Run Django tests
         run: poetry run python manage.py test
 
-      - name: Set up Docker Buildx
+
+  docker-build:
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker images
         run: docker compose build
 
+
   deploy:
-    needs: tests
+    needs: docker-build
     runs-on: ubuntu-latest
     if: success()
 
@@ -60,3 +67,4 @@ jobs:
             git reset --hard origin/develop_32.2
             sudo docker compose down
             sudo docker compose up --build -d
+
